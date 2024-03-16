@@ -1,5 +1,5 @@
 <div align="center">
-  ![BubbleBobbleGame](bin/assets/BubbleBobbleTitle.png)
+   <img src="bin/assets/BubbleBobbleTitle.png">
 </div>
 
 ## Description 
