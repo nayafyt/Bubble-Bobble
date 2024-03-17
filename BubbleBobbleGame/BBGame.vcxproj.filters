@@ -77,6 +77,6 @@
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="Stage4.rc" />
+    <ResourceCompile Include="BBGame.rc" />
   </ItemGroup>
 </Project>
