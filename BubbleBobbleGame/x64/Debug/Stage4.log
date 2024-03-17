@@ -1,0 +1,24 @@
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
+  block.cpp
+  endpage.cpp
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\endpage.cpp(22,52): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\endpage.cpp(25,51): warning C4305: 'argument': truncation from 'double' to 'float'
+  enemy.cpp
+  gameobject.cpp
+  gamestate.cpp
+  level.cpp
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\level.cpp(225,43): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\level.cpp(249,20): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\level.cpp(255,24): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\level.cpp(259,24): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\level.cpp(262,20): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\level.cpp(267,20): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\level.cpp(268,20): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\level.cpp(271,20): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+  main.cpp
+  player.cpp
+  startpage.cpp
+C:\Users\nfyta\Desktop\Sxolh\CPPproj\p3200215-p3190303\Stage4\startpage.cpp(13,38): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+  Generating Code...
+RC : fatal error RC1110: could not open Stage4.rc
+  
