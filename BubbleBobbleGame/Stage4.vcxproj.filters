@@ -76,7 +76,4 @@
   <ItemGroup>
     <None Include="ClassDiagram.cd" />
   </ItemGroup>
-  <ItemGroup>
-    <ResourceCompile Include="Stage4.rc" />
-  </ItemGroup>
 </Project>
