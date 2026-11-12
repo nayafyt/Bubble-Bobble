@@ -1,5 +1,6 @@
 #include "endpage.h"
 #include "util.h"
+#include <cstdio>
 
 void EndPage::drawEP() {
     float w = m_state->getCanvasWidth();
@@ -10,12 +11,12 @@ void EndPage::drawEP() {
 
     graphics::drawText(w / 4.0f, h / 5.0f, 1.5f, "Game Over", m_brush_text);
 
-    graphics::setFont("assets\\PressStart2P-vaV7.ttf");
+    graphics::setFont(m_state->getFullAssetPath("PressStart2P-vaV7.ttf"));
     int playerScore = GameState::getInstance()->getPlayerScore();
 
     // Display the player's score
     char scoreText[20];
-    sprintf_s(scoreText, "Score: %d", playerScore);
+    snprintf(scoreText, sizeof(scoreText), "Score: %d", playerScore);
     //graphics::drawText(w / 5.0f - 2, h / 2.0f, 0.8f, scoreText, m_brush_text);
     if (playerScore == 500)
     {
@@ -33,7 +34,7 @@ void EndPage::initEP() {
     m_brush_text.fill_color[0] = 1.0f;
     m_brush_text.fill_color[1] = 1.0f;
     m_brush_text.fill_color[2] = 1.0f;
-    graphics::playMusic("assets\\game_over.mp3", 0.11f, true);
+    graphics::playMusic(m_state->getFullAssetPath("game_over.mp3"), 0.11f, true);
     m_brush_title.outline_opacity = 0.0f;
 
 }

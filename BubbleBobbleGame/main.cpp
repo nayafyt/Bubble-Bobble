@@ -65,7 +65,7 @@ int main(int argc, char** argv)
     graphics::setCanvasSize(GameState::getInstance()->getCanvasWidth(), GameState::getInstance()->getCanvasHeight());
     graphics::setCanvasScaleMode(graphics::CANVAS_SCALE_FIT);
 
-    graphics::setFont("assets\\PressStart2P-vaV7.ttf");
+    graphics::setFont(gameState->getFullAssetPath("PressStart2P-vaV7.ttf"));
 
 
     graphics::startMessageLoop();

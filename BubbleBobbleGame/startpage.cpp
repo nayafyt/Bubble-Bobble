@@ -25,7 +25,7 @@ void StartPage::initSP()
 	m_brush_text.fill_color[0] = 1.0f;
 	m_brush_text.fill_color[1] = 1.0f;
 	m_brush_text.fill_color[2] = 1.0f;
-	graphics::playMusic("assets\\intro.wav", 0.11f, true);
+	graphics::playMusic(m_state->getFullAssetPath("intro.wav"), 0.11f, true);
 
 	m_brush_title.outline_opacity = 0.0f;
 	m_brush_title.texture = m_state->getFullAssetPath("title.png");

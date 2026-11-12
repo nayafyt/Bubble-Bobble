@@ -2,6 +2,7 @@
 #include "sgg/graphics.h"
 #include "util.h"
 #include <iostream>
+#include <cstdio>
 
 void Enemy::update(float dt) {
 	float delta_time = dt / 1000.0f;
@@ -147,7 +148,7 @@ void Enemy::debugDraw()
 	enemy_debug_brush.outline_opacity = 1.0f;
 	graphics::drawRect(pos_x + m_state->m_global_offset_x, pos_y + m_state->m_global_offset_y, 0.7f, 0.7f, enemy_debug_brush);
 	char s[20];
-	sprintf_s(s, "(%5.2f, %5.2f)", pos_x, pos_y);
+	snprintf(s, sizeof(s), "(%5.2f, %5.2f)", pos_x, pos_y);
 	graphics::drawText(pos_x + m_state->m_global_offset_x - 0.4f, pos_y + m_state->m_global_offset_y - 0.6f, 0.15f, s, enemy_debug_brush);
 }
 
