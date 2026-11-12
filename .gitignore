@@ -1,0 +1,21 @@
+# Build output
+build/
+bin/BubbleBobble
+bin/*.exe
+bin/*.pdb
+bin/*.ilk
+*.o
+*.d
+*.a
+
+# Fetched by scripts/setup-deps.sh
+third_party/
+
+# Visual Studio
+# (Stage4.vcxproj.user is deliberately tracked: it sets the debugger's working
+# directory to bin/, which the game needs in order to find assets/)
+.vs/
+x64/
+Win32/
+Debug/
+Release/
