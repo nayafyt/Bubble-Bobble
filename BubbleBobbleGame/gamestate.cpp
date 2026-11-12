@@ -13,8 +13,8 @@ GameState::GameState()
 
 GameState::~GameState()
 {
-	if (m_current_level)
-		delete m_current_level;
+	delete m_current_level;
+	delete m_player;
 }
 
 GameState* GameState::getInstance()
@@ -28,6 +28,13 @@ GameState* GameState::getInstance()
 
 bool GameState::init()
 {
+	// init() also runs on a restart, so throw away the previous run first
+	// instead of leaking it.
+	delete m_current_level;
+	m_current_level = nullptr;
+	delete m_player;
+	m_player = nullptr;
+
 	m_current_level = new Level("1.lvl");
 	m_current_level->init();
 
@@ -114,6 +121,8 @@ void GameState::setInEndPage(bool inEndPage) {
 }
 
 bool GameState::isGameOver() const {
+	if (!m_player)
+		return false;
 	return(m_player->getScore() == 500 || m_player->getHearts() == 0);
 }
 

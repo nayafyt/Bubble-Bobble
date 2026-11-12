@@ -18,8 +18,8 @@ private:
 	class Player* m_player = 0;
 
 	//Bool var to check if the game is in the start page
-	bool inStartPage;
-	bool inEndPage;
+	bool inStartPage = true;
+	bool inEndPage = false;
 	GameState();
 
 public:

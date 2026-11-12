@@ -46,6 +46,9 @@ void update(float dt) {
 
         if (gameState->isGameOver()) {
             gameState->setInEndPage(true);
+            // initEP() sets up the text brush and the game-over music.
+            // Without it the end screen drew with an uninitialised brush.
+            endPage.initEP();
         }
     }
 

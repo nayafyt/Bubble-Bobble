@@ -19,7 +19,15 @@ void Player::update(float dt)
 
 void Player::draw()
 {
-	int sprite = (int)fmod(100.0f - m_pos_x * 9.0f, m_sprites.size());
+	if (m_sprites.empty())
+		return;
+
+	// fmod() returns a negative value once m_pos_x climbs past ~11.1 (and NaN
+	// for an empty sprite list), so the raw result must not be used as an index
+	// directly - doing so read past the end of m_sprites and crashed the game.
+	const int frame_count = (int)m_sprites.size();
+	int sprite = (int)fmod(100.0f - m_pos_x * 9.0f, (float)frame_count);
+	sprite = ((sprite % frame_count) + frame_count) % frame_count;
 
 	m_brush_player.texture = m_sprites[sprite];
 	graphics::drawRect(m_state->getCanvasWidth() * 0.5f, m_state->getCanvasHeight() * 0.5f, 0.8f, 0.8f, m_brush_player);
