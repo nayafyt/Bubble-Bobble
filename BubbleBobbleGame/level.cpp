@@ -57,7 +57,7 @@ void Level::checkCollisions()
 	for (auto& block : block.getBlocks())
 	{
 		float offset = 0.0f;
-		if (offset = m_state->getPlayer()->intersectDown(block))
+		if ((offset = m_state->getPlayer()->intersectDown(block)) != 0.0f)
 		{
 			m_state->getPlayer()->m_pos_y += offset;
 
@@ -74,7 +74,7 @@ void Level::checkCollisions()
 	for (auto& block : block.getBlocks())
 	{
 		float offset = 0.0f;
-		if (offset = m_state->getPlayer()->intersectSideways(block))
+		if ((offset = m_state->getPlayer()->intersectSideways(block)) != 0.0f)
 		{
 			m_state->getPlayer()->m_pos_x += offset;
 
@@ -86,13 +86,12 @@ void Level::checkCollisions()
 
 	//Differentiate when you find block of name=gemGold.png
 
-	for (int i = 0; i < block.getBlocks().size(); i++)
+	for (int i = 0; i < (int)block.getBlocks().size(); i++)
 	{
-		float offset = 0.0f;
 		// Check for collisions with the player and the specific block/the coin
-		if (offset = m_state->getPlayer()->intersect(block.getBox(i)))
+		// (positional correction is already handled by the two loops above)
+		if (m_state->getPlayer()->intersect(block.getBox(i)))
 		{
-			m_state->getPlayer()->m_pos_y += offset;
 			if (block.getName(i) == "gemGold.png")
 			{
 				// Collision with the coin block
@@ -109,8 +108,8 @@ void Level::checkCollisions()
 
 				notifications.buildBlock(posx, posy, 1.0f, 1.0f, "point100.png", graphics::getGlobalTime());
 
-
-
+				// erase(i) invalidates the indices after i
+				break;
 			}
 		}
 	}
@@ -119,14 +118,19 @@ void Level::checkCollisions()
 	for (auto enemy : m_enemies) {
 		float offset = 0.0f;
 		Box ebox = enemy->getBox(1);
-		if (offset = m_state->getPlayer()->intersectSideways(ebox))
+		if ((offset = m_state->getPlayer()->intersectSideways(ebox)) != 0.0f)
 		{
+			// Briefly invulnerable after the last hit: skip the knock-back and
+			// the heart, otherwise one touch costs the whole game.
+			if (m_state->getPlayer()->isInvulnerable(graphics::getGlobalTime()))
+				break;
+
 			int playerPosition = 1;
 			// Check the direction of the collision
 			// Player collides from the left side of the enemy
 			if (m_state->getPlayer()->m_pos_x < ebox.m_pos_x)
 				playerPosition = -1;
-			m_state->getPlayer()->m_pos_x = ebox.m_pos_x + playerPosition * ebox.m_pos_x; // Adjust player's position
+			m_state->getPlayer()->m_pos_x = ebox.m_pos_x + playerPosition * ebox.m_width; // Adjust player's position
 			m_state->getPlayer()->m_vx = -1 * m_state->getPlayer()->m_vx; // Reverse player's horizontal velocity
 
 			graphics::playSound(m_state->getFullAssetPath("collide.wav"), 1.0f);
@@ -134,7 +138,7 @@ void Level::checkCollisions()
 			// Set vertical velocity to 0
 			m_state->getPlayer()->m_vy = 0.0f;
 			//When player collides with enemy he loses a heart
-			m_state->getPlayer()->loseHeart();
+			m_state->getPlayer()->loseHeart(graphics::getGlobalTime());
 			notifications.buildBlock(ebox.m_pos_x, ebox.m_pos_y, 0.2f, 0.2f, "broken-heart.png", graphics::getGlobalTime());
 
 
@@ -142,12 +146,36 @@ void Level::checkCollisions()
 		}
 	}
 
-	// Check if the player has fallen off the level (below a certain y threshold)
-	if ((m_state->getPlayer()->m_pos_y > 4.0f && (m_state->getPlayer()->m_pos_x < 0.0f && m_state->getPlayer()->m_pos_x > -1.0f)) || (m_state->getPlayer()->m_pos_y > 4.0f && (m_state->getPlayer()->m_pos_x < 9.0f && m_state->getPlayer()->m_pos_x > 8.0f)))
+	// Check if the player has fallen off the level (below a certain y threshold).
+	// The bottom row has two gaps to drop through; testing only for their exact
+	// centres (-1 < x < 0, 8 < x < 9) missed the edges, so a player going down
+	// beside one - x = 9.25 is where the right wall leaves you - fell for ever
+	// with the level long gone off-screen. Anything below the floor now wraps.
+	if (m_state->getPlayer()->m_pos_y > 6.0f)
 	{
 		//making the players position to get in from the upper opening 
 		m_state->getPlayer()->m_pos_x = -1.0f;
 		m_state->getPlayer()->m_pos_y = -10.0f;
+		// re-enter at a controllable speed, not at whatever terminal velocity
+		// the fall had built up
+		m_state->getPlayer()->m_vy = 0.0f;
+	}
+
+	// The frame's walls stand at x = -3 and x = 10, but the space above the
+	// ceiling is wide open, so a player that re-entered through the top opening
+	// could simply walk out past them - and once outside, the collision resolver
+	// pushes it further out rather than back in, so it never returned.
+	const float left_limit = -2.25f;   // left wall edge + half the player width
+	const float right_limit = 9.25f;   // right wall edge - half the player width
+	if (m_state->getPlayer()->m_pos_x < left_limit)
+	{
+		m_state->getPlayer()->m_pos_x = left_limit;
+		m_state->getPlayer()->m_vx = 0.0f;
+	}
+	else if (m_state->getPlayer()->m_pos_x > right_limit)
+	{
+		m_state->getPlayer()->m_pos_x = right_limit;
+		m_state->getPlayer()->m_vx = 0.0f;
 	}
 }
 

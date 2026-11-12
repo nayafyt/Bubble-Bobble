@@ -17,6 +17,12 @@ class Player : public Box, public GameObject
 	int score = 0;
 	int hearts = 5;
 
+	// checkCollisions() runs once per frame, so without a cool-down a single
+	// touch drained every heart and pinned m_vy to zero, leaving the player
+	// hovering next to the enemy instead of falling.
+	const float m_hit_cooldown = 1000.0f;   // milliseconds
+	float m_last_hit_time = -10000.0f;
+
 public:
 	float m_vx = 0.0f;
 	float m_vy = 0.0f;
@@ -31,8 +37,9 @@ public:
 	int getScore() { return score; }
 	void resetScore() { score = 0; }
 
-	void loseHeart() { hearts -= 1; }
+	void loseHeart(float now) { hearts -= 1; m_last_hit_time = now; }
 	int getHearts() { return hearts; }
+	bool isInvulnerable(float now) const { return now - m_last_hit_time < m_hit_cooldown; }
 
 
 	Player(std::string name) : GameObject(name) {}
