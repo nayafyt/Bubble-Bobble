@@ -14,6 +14,19 @@ void StartPage::drawSP()
 
 	graphics::drawText(w / 4 + 1, h / 2 + 5, 0.5, "Press ENTER to Start", m_brush_text);
 
+	// Spell out the controls, in the empty strip above the logo - otherwise
+	// there is nowhere in the game that tells you which keys do anything.
+	drawCenteredText(1.5f, m_controls_size, "MOVE:  A / D  OR  LEFT / RIGHT");
+	drawCenteredText(2.6f, m_controls_size, "JUMP:  W  OR  UP");
+
+}
+
+void StartPage::drawCenteredText(float y, float size, const std::string& text)
+{
+	// The title screen runs in PressStart2P, which is monospaced; an advance
+	// of about 0.76 * size matches the "Press ENTER to Start" line above.
+	const float width = text.length() * size * 0.76f;
+	graphics::drawText((m_state->getCanvasWidth() - width) / 2.0f, y, size, text, m_brush_text);
 }
 
 void StartPage::initSP()
