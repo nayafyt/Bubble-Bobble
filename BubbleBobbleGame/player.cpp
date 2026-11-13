@@ -79,10 +79,16 @@ void Player::movePlayer(float dt)
 	float delta_time = dt / 1000.0f;
 
 	// Stage 2 code: Acceleration-based velocity
+	// Steering accepts either A/D or the left/right arrow keys.
+	const bool move_left = graphics::getKeyState(graphics::SCANCODE_A) ||
+		graphics::getKeyState(graphics::SCANCODE_LEFT);
+	const bool move_right = graphics::getKeyState(graphics::SCANCODE_D) ||
+		graphics::getKeyState(graphics::SCANCODE_RIGHT);
+
 	float move = 0.0f;
-	if (graphics::getKeyState(graphics::SCANCODE_A))
+	if (move_left)
 		move -= 1.0f;
-	if (graphics::getKeyState(graphics::SCANCODE_D))
+	if (move_right)
 		move = 1.0f;
 
 	m_vx = std::min<float>(m_max_velocity, m_vx + delta_time * move * m_accel_horizontal);
@@ -100,7 +106,10 @@ void Player::movePlayer(float dt)
 
 	// jump only when not in flight:
 	if (m_vy == 0.0f) {
-		m_vy -= (graphics::getKeyState(graphics::SCANCODE_W) ? m_accel_vertical : 0.0f) * 0.02f;// not delta_time!! Burst 
+		// W or the up arrow key
+		const bool jump = graphics::getKeyState(graphics::SCANCODE_W) ||
+			graphics::getKeyState(graphics::SCANCODE_UP);
+		m_vy -= (jump ? m_accel_vertical : 0.0f) * 0.02f;// not delta_time!! Burst 
 	}
 
 	// add gravity

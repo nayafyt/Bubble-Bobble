@@ -7,7 +7,8 @@ The specific project is a simple variation of an old video game Bubble Bobble de
 
 ## Rules
 - Press ENTER to start the game
-- To move left and right you use the A and D keys and to jump W
+- To move left and right you use the A and D keys, or the left and right arrow keys
+- To jump you use W, or the up arrow key
 - You have 5 lives
 - You need to dodge the moving enemies
 - If you lose all of the 5 lives, you lose the game
