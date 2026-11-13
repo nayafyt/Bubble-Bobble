@@ -25,7 +25,7 @@ git clone https://github.com/nayafyt/Bubble-Bobble.git
 cd Bubble-Bobble
 
 ./scripts/setup-deps.sh    # fetches SGG and its dependencies into third_party/
-make                       # builds bin/BubbleBobble
+make                       # builds build/BubbleBobble
 make run                   # plays it
 ```
 
@@ -49,14 +49,14 @@ Useful make targets:
 
 | Target | What it does |
 |---|---|
-| `make` | build `bin/BubbleBobble` |
-| `make run` | build, then run it from `bin/` |
+| `make` | build `build/BubbleBobble` |
+| `make run` | build, then play |
 | `make clean` | delete the build output |
 | `make distclean` | also delete `third_party/` |
 | `make deps` | run `scripts/setup-deps.sh` |
 
-The game loads its assets through the relative path `assets/`, so it has to be
-run with `bin/` as the working directory — `make run` does that for you.
+The game finds `assets/` relative to its own executable, so you can launch
+`build/BubbleBobble` from any directory.
 
 ### Windows (Visual Studio)
 
@@ -65,18 +65,20 @@ run with `bin/` as the working directory — `make run` does that for you.
    - `include\sgg\graphics.h` and `include\sgg\scancodes.h` (already in the repo)
    - `lib\sgg.lib` (Release) and `lib\sggd.lib` (Debug)
    - the SGG DLLs (`SDL2.dll`, `SDL2_mixer.dll`, `glew32.dll`, `freetype.dll`, …)
-     next to the executable in `bin\`
+     next to the executable in `build\`
 2. Open `Stage4.sln`, select the **x64** configuration and build.
-3. Run from Visual Studio — the project is already set to use `bin\` as the
-   working directory, which is where `assets\` lives.
+3. Run from Visual Studio. The executable is written to `build\`, and the game
+   locates `assets\` next to it on its own.
 
 ## Project layout
 
 ```
-BubbleBobbleGame/   game sources and the Visual Studio project
+src/                game sources and the Visual Studio project
+assets/             sprites, fonts and sounds
 include/sgg/        SGG public headers (used by the Visual Studio build)
-bin/assets/         sprites, fonts and sounds
 scripts/            setup-deps.sh
+.github/workflows/  CI: builds on every push
 Makefile            Linux/macOS build
+build/              compiled output (not in git)
 third_party/        created by setup-deps.sh (not in git)
 ```

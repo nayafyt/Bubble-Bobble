@@ -1,9 +1,5 @@
 # Build output
 build/
-bin/BubbleBobble
-bin/*.exe
-bin/*.pdb
-bin/*.ilk
 *.o
 *.d
 *.a
@@ -13,9 +9,12 @@ third_party/
 
 # Visual Studio
 # (Stage4.vcxproj.user is deliberately tracked: it sets the debugger's working
-# directory to bin/, which the game needs in order to find assets/)
+# directory to build/, which is where the executable is written)
 .vs/
 x64/
 Win32/
 Debug/
 Release/
+*.exe
+*.pdb
+*.ilk

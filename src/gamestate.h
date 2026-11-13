@@ -8,7 +8,9 @@ class GameState
 private:
 	static GameState* m_unique_instance;
 
-	const std::string m_asset_path = "assets/";
+	// Resolved once at startup, relative to the executable, so the game can
+	// be launched from any working directory.
+	std::string m_asset_path;
 
 	const float m_canvas_width = 20.0f;
 	const float m_canvas_height = 20.0f;

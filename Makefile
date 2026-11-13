@@ -2,7 +2,7 @@
 # Bubble Bobble - Linux / macOS build
 #
 #   ./scripts/setup-deps.sh    fetch SGG + its dependencies into third_party/
-#   make                       build bin/BubbleBobble
+#   make                       build build/BubbleBobble
 #   make run                   build and play
 #   make clean                 remove build output
 #
@@ -13,12 +13,11 @@ CXX      ?= g++
 CXXSTD   ?= -std=c++17
 OPTFLAGS ?= -O2
 
-GAME_DIR  := BubbleBobbleGame
+GAME_DIR  := src
 SGG_DIR   := third_party/sgg
 LOCAL     := third_party/local/usr
 BUILD_DIR := build
-BIN_DIR   := bin
-TARGET    := $(BIN_DIR)/BubbleBobble
+TARGET    := $(BUILD_DIR)/BubbleBobble
 
 # The game includes <sgg/graphics.h>; -I$(SGG_DIR) resolves it to the header
 # belonging to the library sources we actually compile, so the two can never
@@ -85,7 +84,7 @@ endif
 deps:
 	@./scripts/setup-deps.sh
 
-$(TARGET): $(GAME_OBJS) $(SGG_LIB) | $(BIN_DIR)
+$(TARGET): $(GAME_OBJS) $(SGG_LIB) | $(BUILD_DIR)
 	$(CXX) $(GAME_OBJS) $(SGG_LIB) -o $@ $(LDFLAGS)
 	@echo "Built $@"
 
@@ -98,16 +97,16 @@ $(BUILD_DIR)/game/%.o: $(GAME_DIR)/%.cpp | $(BUILD_DIR)/game
 $(BUILD_DIR)/sgg/%.o: $(SGG_DIR)/sgg/%.cpp | $(BUILD_DIR)/sgg
 	$(CXX) $(SGG_CXXFLAGS) -c $< -o $@
 
-$(BUILD_DIR)/game $(BUILD_DIR)/sgg $(BIN_DIR):
+$(BUILD_DIR) $(BUILD_DIR)/game $(BUILD_DIR)/sgg:
 	@mkdir -p $@
 
-# The game loads its assets from a relative "assets/" path, so it has to run
-# with bin/ as the working directory.
+# The game locates assets/ relative to its own executable, so it can be run
+# from anywhere.
 run: all
-	cd $(BIN_DIR) && ./$(notdir $(TARGET))
+	./$(TARGET)
 
 clean:
-	rm -rf $(BUILD_DIR) $(TARGET)
+	rm -rf $(BUILD_DIR)
 
 distclean: clean
 	rm -rf third_party
