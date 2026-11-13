@@ -64,7 +64,13 @@ SGG_LIB  := $(BUILD_DIR)/libsgg.a
 
 # SGG is third-party code: build it quietly rather than drowning our own
 # warnings in it.
-SGG_CXXFLAGS := $(CXXSTD) $(OPTFLAGS) -I$(SGG_DIR) $(DEP_CFLAGS) -w
+#
+# GLM 1.0 refuses to compile glm/gtx/transform.hpp - which SGG includes in
+# GLbackend.cpp and fonts.cpp - unless the experimental extensions are opted
+# into. Older GLM (0.9.x) let it through silently, so this only shows up on
+# newer distributions.
+SGG_CXXFLAGS := $(CXXSTD) $(OPTFLAGS) -I$(SGG_DIR) $(DEP_CFLAGS) -w \
+                -DGLM_ENABLE_EXPERIMENTAL
 
 .PHONY: all run clean distclean deps check-deps
 
