@@ -1,5 +1,11 @@
 <div align="center">
-   <img src="bin/assets/BubbleBobbleTitle.png">
+   <img src="assets/BubbleBobbleTitle.png">
+</div>
+
+<div align="center">
+
+[![build](https://github.com/nayafyt/Bubble-Bobble/actions/workflows/ci.yml/badge.svg)](https://github.com/nayafyt/Bubble-Bobble/actions/workflows/ci.yml)
+
 </div>
 
 ## Description 

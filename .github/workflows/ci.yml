@@ -1,0 +1,71 @@
+name: build
+
+# This repository has broken silently before: the Visual Studio project was
+# moved away from the sources it lists, and the code did not compile outside
+# MSVC at all. Neither was visible until somebody tried to build it.
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  linux:
+    name: Linux build
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install SGG dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            libsdl2-dev libsdl2-mixer-dev libglew-dev libfreetype-dev \
+            libglm-dev libgl-dev libglu1-mesa-dev
+
+      # With those packages present the script takes its "system packages"
+      # path and only fetches SGG, so that branch gets covered too.
+      - name: Fetch SGG
+        run: ./scripts/setup-deps.sh
+
+      - name: Build
+        run: make
+
+      - name: Check the binary was produced
+        run: |
+          test -x build/BubbleBobble
+          file build/BubbleBobble
+
+      # The game resolves assets relative to its own executable rather than to
+      # the working directory, so start it from an unrelated directory to prove
+      # that still holds. It needs a display and an OpenGL context, hence xvfb
+      # and Mesa's software renderer.
+      #
+      # Advisory only: a headless GL context is the least predictable part of
+      # this job, and a wobble there should not fail an otherwise good build.
+      # Drop continue-on-error once you have seen it pass a few times.
+      - name: Smoke test (advisory)
+        continue-on-error: true
+        env:
+          LIBGL_ALWAYS_SOFTWARE: "1"
+        run: |
+          sudo apt-get install --no-install-recommends -y xvfb libgl1-mesa-dri
+          cd /tmp
+          xvfb-run -a --server-args="-screen 0 800x800x24" \
+            "$GITHUB_WORKSPACE/build/BubbleBobble" > out.log 2>&1 &
+          pid=$!
+          sleep 15
+          if ! kill -0 "$pid" 2>/dev/null; then
+            echo "::error::the game exited early"
+            cat out.log
+            exit 1
+          fi
+          kill "$pid" 2>/dev/null || true
+          if grep -q "could not locate the assets" out.log; then
+            echo "::error::assets were not found from an unrelated directory"
+            cat out.log
+            exit 1
+          fi
+          echo "ran for 15s from /tmp without exiting, and found its assets"
+          cat out.log
