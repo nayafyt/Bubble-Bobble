@@ -1,0 +1,149 @@
+name: release
+
+# Produces something people can actually download and play:
+#   * a Linux AppImage  - one file, chmod +x, double-click
+#   * a Windows zip     - BubbleBobble.exe with its DLLs and assets
+#
+# Runs on demand, and publishes a GitHub Release when a v* tag is pushed:
+#   git tag v1.0 && git push --tags
+on:
+  push:
+    tags: ['v*']
+  workflow_dispatch:
+
+permissions:
+  contents: write   # the publish job creates a Release
+
+jobs:
+  linux:
+    name: Linux AppImage
+    # Deliberately not ubuntu-latest: a binary built against a newer glibc will
+    # not start on older distributions, but an older build runs fine on newer
+    # ones. Build old, run everywhere.
+    runs-on: ubuntu-22.04
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install --no-install-recommends -y \
+            pkg-config file desktop-file-utils \
+            libsdl2-dev libsdl2-mixer-dev libglew-dev libfreetype6-dev \
+            libglm-dev libgl-dev libglu1-mesa-dev
+
+      - name: Fetch SGG
+        run: ./scripts/setup-deps.sh
+
+      - name: Build
+        run: make
+
+      # The game looks for assets next to its own executable, checking
+      # <exe>/../assets first - so usr/assets is exactly where they belong
+      # once linuxdeploy has put the binary in usr/bin.
+      - name: Assemble the AppDir
+        run: |
+          mkdir -p AppDir/usr/bin AppDir/usr/assets
+          cp build/BubbleBobble AppDir/usr/bin/
+          cp -r assets/. AppDir/usr/assets/
+          cp packaging/bubble-bobble.desktop AppDir/
+          cp assets/icon.png AppDir/bubble-bobble.png
+
+      - name: Package as an AppImage
+        env:
+          # GitHub runners have no FUSE, so the packaging tools have to unpack
+          # themselves instead of mounting.
+          APPIMAGE_EXTRACT_AND_RUN: 1
+          OUTPUT: BubbleBobble-x86_64.AppImage
+        run: |
+          base=https://github.com/linuxdeploy/linuxdeploy/releases/download/continuous
+          plugin=https://github.com/linuxdeploy/linuxdeploy-plugin-appimage/releases/download/continuous
+          curl -sSfLO "$base/linuxdeploy-x86_64.AppImage"
+          curl -sSfLO "$plugin/linuxdeploy-plugin-appimage-x86_64.AppImage"
+          chmod +x linuxdeploy-x86_64.AppImage linuxdeploy-plugin-appimage-x86_64.AppImage
+          PATH="$PWD:$PATH" ./linuxdeploy-x86_64.AppImage \
+            --appdir AppDir \
+            --desktop-file AppDir/bubble-bobble.desktop \
+            --icon-file AppDir/bubble-bobble.png \
+            --output appimage
+          ls -la *.AppImage
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BubbleBobble-linux
+          path: BubbleBobble-x86_64.AppImage
+          if-no-files-found: error
+
+  windows:
+    name: Windows exe
+    runs-on: windows-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      # On Windows the script only fetches SGG: SGG carries its own prebuilt
+      # SDL2 / GLEW / FreeType import libraries and DLLs for MSVC.
+      - name: Fetch SGG
+        shell: bash
+        run: ./scripts/setup-deps.sh
+
+      # Compile the game and SGG together in one go, with the same flags SGG's
+      # own build_sgg_x64.bat / build_demo_x64.bat use. vswhere locates the
+      # toolchain, so no third-party action is needed.
+      - name: Build
+        shell: cmd
+        run: |
+          for /f "usebackq tokens=*" %%i in (`"%ProgramFiles(x86)%\Microsoft Visual Studio\Installer\vswhere.exe" -latest -products * -requires Microsoft.VisualStudio.Component.VC.Tools.x86.x64 -property installationPath`) do set "VSPATH=%%i"
+          call "%VSPATH%\VC\Auxiliary\Build\vcvars64.bat" || exit /b 1
+          mkdir obj
+          mkdir dist
+          cl /EHsc /nologo /O2 /MD /std:c++17 /DGLM_ENABLE_EXPERIMENTAL ^
+             /I src /I third_party\sgg /I third_party\sgg\3rdparty\include ^
+             src\*.cpp third_party\sgg\sgg\*.cpp ^
+             /Fo"obj\\" /Fe:"dist\BubbleBobble.exe" ^
+             /link /LIBPATH:"third_party\sgg\3rdparty\lib" /SUBSYSTEM:CONSOLE /MACHINE:X64 ^
+             SDL2_mixer.lib glew32.lib SDL2.lib SDL2main.lib opengl32.lib freetype.lib || exit /b 1
+
+      # The exe looks beside itself for assets\, which is the second place it
+      # checks, so dist\assets is correct here.
+      - name: Bundle the DLLs and assets
+        shell: cmd
+        run: |
+          copy third_party\sgg\3rdparty\bin\*.dll dist\ || exit /b 1
+          mkdir dist\assets
+          xcopy /E /I /Y assets dist\assets || exit /b 1
+          dir dist
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: BubbleBobble-windows
+          path: dist/
+          if-no-files-found: error
+
+  publish:
+    name: Publish release
+    needs: [linux, windows]
+    if: startsWith(github.ref, 'refs/tags/v')
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: downloads
+
+      - name: Zip the Windows build
+        run: |
+          cd downloads/BubbleBobble-windows
+          zip -r ../BubbleBobble-windows-x64.zip .
+
+      - name: Publish
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "$GITHUB_REF_NAME" \
+            --repo "$GITHUB_REPOSITORY" \
+            --title "Bubble Bobble $GITHUB_REF_NAME" \
+            --generate-notes \
+            downloads/BubbleBobble-linux/BubbleBobble-x86_64.AppImage \
+            downloads/BubbleBobble-windows-x64.zip

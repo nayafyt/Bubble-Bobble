@@ -159,6 +159,15 @@ relink_against_system() {
 }
 
 setup_deps() {
+    # On Windows SGG ships the import libraries and DLLs it needs in
+    # third_party/sgg/3rdparty, so there is nothing to resolve.
+    case "$(uname -s)" in
+        MINGW*|MSYS*|CYGWIN*)
+            say "Windows: SGG bundles its dependencies in third_party/sgg/3rdparty"
+            return
+            ;;
+    esac
+
     if have_system_deps; then
         say "SDL2 / SDL2_mixer / GLEW / FreeType / GLM found system-wide"
         return

@@ -1,0 +1,8 @@
+[Desktop Entry]
+Type=Application
+Name=Bubble Bobble
+Comment=Collect all the gems without being caught by the enemies
+Exec=BubbleBobble
+Icon=bubble-bobble
+Categories=Game;ArcadeGame;
+Terminal=false

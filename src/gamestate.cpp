@@ -8,6 +8,10 @@
 #include <fstream>
 
 #ifdef _WIN32
+// windows.h defines min/max as macros, which breaks the std::max call in
+// GameState::update below, and pulls in a great deal we do not need.
+#define NOMINMAX
+#define WIN32_LEAN_AND_MEAN
 #include <windows.h>
 #elif defined(__APPLE__)
 #include <mach-o/dyld.h>

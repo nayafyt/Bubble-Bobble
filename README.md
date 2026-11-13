@@ -22,6 +22,19 @@ The specific project is a simple variation of an old video game Bubble Bobble de
 - On the Game Over screen, press R to go back to the title screen
 - Press 0 at any time to toggle the collision-box debug overlay
 
+## Download and play
+
+Prebuilt builds are attached to every
+[release](https://github.com/nayafyt/Bubble-Bobble/releases) — no compiler
+needed:
+
+| | |
+|---|---|
+| Linux | `BubbleBobble-x86_64.AppImage` — `chmod +x` it, then run it |
+| Windows | `BubbleBobble-windows-x64.zip` — unzip, run `BubbleBobble.exe` |
+
+To build it yourself instead, read on.
+
 ## How to Run
 
 ### Linux / macOS
